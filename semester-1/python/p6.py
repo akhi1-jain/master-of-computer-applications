@@ -1,8 +1,6 @@
 students = {}
 n = int(input("Enter the number of students: "))
-
-# We need the total working days to calculate percentage
-total_working_days = int(input("Enter the total number of working days in the semester: "))
+total_working_days = int(input("Enter the total number of working days: "))
 
 # 1. Accept Data
 for i in range(n):
@@ -14,29 +12,26 @@ print("\n--- Eligibility Check (Minimum 85% Attendance) ---")
 
 noneligible = {}
 
-# 2. Process Data
+# 2. Process Data (Calculate ONCE)
 for roll, absent in students.items():
-    # Calculate days present
     present = total_working_days - absent
-    
-    # Calculate percentage
-    # Formula: (Present Days / Total Days) * 100
     percentage = (present / total_working_days) * 100
     
-    # Check eligibility condition
+    # Check eligibility
     if percentage < 85:
-        noneligible[roll] = absent
+        # OPTIMIZATION: Store both absent days AND percentage together
+        # We use a tuple: (absent_days, calculated_percentage)
+        noneligible[roll] = (absent, percentage) 
 
-# 3. Output Results
+# 3. Output Results (No Recalculation)
 if noneligible:
     print("Non-eligible students:")
-    print("-" * 30)
+    print("-" * 45) # Adjusted width for cleaner look
     print(f"{'Roll Number':<15} {'Days Absent':<15} {'Percentage':<10}")
-    print("-" * 30)
-    for roll, absent in noneligible.items():
-        # Recalculate percentage just for display purposes
-        present = total_working_days - absent
-        pct = (present / total_working_days) * 100
+    print("-" * 45)
+    
+    # We unpack the tuple directly here
+    for roll, (absent, pct) in noneligible.items():
         print(f"{roll:<15} {absent:<15} {pct:.2f}%")
 else:
     print("No non-eligible students found. Everyone is eligible!")
