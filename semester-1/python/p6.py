@@ -1,28 +1,42 @@
-# 1. Take Inputs
-cap = float(input("Enter capacity in liters: "))
-rate = float(input("Enter the leakage rate in ml/sec: "))
-days = int(input("Enter the number of days: "))
+students = {}
+n = int(input("Enter the number of students: "))
 
-# 2. Convert Capacity from Liters to Milliliters
-total_water_ml = cap * 1000
+# We need the total working days to calculate percentage
+total_working_days = int(input("Enter the total number of working days in the semester: "))
 
-# 3. Convert Days to Seconds
-# (Days * 24 hours * 60 minutes * 60 seconds)
-total_seconds = days * 24 * 60 * 60
+# 1. Accept Data
+for i in range(n):
+    roll = input(f"Enter roll number of student {i+1}: ")
+    absent = int(input(f"Enter the number of days absent for student {i+1}: "))
+    students[roll] = absent
 
-# 4. Calculate Total Loss in Milliliters
-total_loss_ml = rate * total_seconds
+print("\n--- Eligibility Check (Minimum 85% Attendance) ---")
 
-# 5. Calculate Remaining Water in Milliliters
-# Logic: Starting Amount - Amount Lost
-remaining_ml = total_water_ml - total_loss_ml
+noneligible = {}
 
-# 6. Convert Remaining Water back to Liters
-remaining_liters = remaining_ml / 1000
+# 2. Process Data
+for roll, absent in students.items():
+    # Calculate days present
+    present = total_working_days - absent
+    
+    # Calculate percentage
+    # Formula: (Present Days / Total Days) * 100
+    percentage = (present / total_working_days) * 100
+    
+    # Check eligibility condition
+    if percentage < 85:
+        noneligible[roll] = absent
 
-# 7. Output the result
-# We add a check: if result is negative, it means the tank is empty.
-if remaining_liters < 0:
-    print("The tank is empty (0 Liters remaining).")
+# 3. Output Results
+if noneligible:
+    print("Non-eligible students:")
+    print("-" * 30)
+    print(f"{'Roll Number':<15} {'Days Absent':<15} {'Percentage':<10}")
+    print("-" * 30)
+    for roll, absent in noneligible.items():
+        # Recalculate percentage just for display purposes
+        present = total_working_days - absent
+        pct = (present / total_working_days) * 100
+        print(f"{roll:<15} {absent:<15} {pct:.2f}%")
 else:
-    print(f"Remaining water: {remaining_liters} Liters")
+    print("No non-eligible students found. Everyone is eligible!")

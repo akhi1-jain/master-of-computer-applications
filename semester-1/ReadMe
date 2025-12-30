@@ -1,0 +1,15 @@
+To push into a github repository
+git init
+git add .
+git commit -m "First commit"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+git push -u origin main
+
+To check who Git thinks you are
+git config user.name
+git config user.email
+
+To change username & email
+git config --global user.name "Your Name"
+git config --global user.email "your_email@example.com"
