@@ -1,0 +1,113 @@
+import json
+import hashlib
+import datetime
+
+
+class Block:
+    def __init__(self, index, timestamp, data, previous_hash):
+        self.index = index
+        self.timestamp = timestamp
+        self.data = data
+        self.previous_hash = previous_hash
+        self.hash = self.calculate_hash()
+
+    def calculate_hash(self):
+        block_contents = {
+            "index": self.index,
+            "timestamp": str(self.timestamp),
+            "data": self.data,
+            "previous_hash": self.previous_hash
+        }
+
+        block_string = json.dumps(
+            block_contents,
+            sort_keys=True
+        ).encode("utf-8")
+
+        return hashlib.sha256(block_string).hexdigest()
+
+    def __repr__(self):
+        return (
+            f"Block(\n"
+            f"  index         = {self.index},\n"
+            f"  timestamp     = {self.timestamp},\n"
+            f"  data          = {self.data},\n"
+            f"  previous_hash = {self.previous_hash},\n"
+            f"  hash          = {self.hash}\n"
+            f")"
+        )
+
+
+def create_genesis_block():
+    return Block(
+        0,
+        datetime.datetime.now(),
+        "Genesis Block",
+        "0"
+    )
+
+
+def create_next_block(previous_block, data):
+    index = previous_block.index + 1
+    timestamp = datetime.datetime.now()
+
+    return Block(
+        index,
+        timestamp,
+        data,
+        previous_block.hash
+    )
+
+
+def is_chain_valid(chain):
+    for i in range(1, len(chain)):
+        current_block = chain[i]
+        previous_block = chain[i - 1]
+
+        # Check whether the block's hash is still correct
+        if current_block.hash != current_block.calculate_hash():
+            return False
+
+        # Check whether the block points to the correct previous block
+        if current_block.previous_hash != previous_block.hash:
+            return False
+
+    return True
+
+
+if __name__ == "__main__":
+    blockchain = [create_genesis_block()]
+
+    blockchain.append(
+        create_next_block(
+            blockchain[-1],
+            "Alice pays Bob 5 coins"
+        )
+    )
+
+    blockchain.append(
+        create_next_block(
+            blockchain[-1],
+            "Bob pays Carol 2 coins"
+        )
+    )
+
+    blockchain.append(
+        create_next_block(
+            blockchain[-1],
+            "Carol pays Dave 1 coin"
+        )
+    )
+
+    # Print the blockchain
+    for block in blockchain:
+        print(block)
+        print("-" * 60)
+
+    print("Chain valid?", is_chain_valid(blockchain))
+
+    # Tamper with block 2
+    print("\nTampering with block 2's data...")
+    blockchain[2].data = "Bob pays Carol 200 coins"
+
+    print("Chain valid?", is_chain_valid(blockchain))
