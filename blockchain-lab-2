@@ -1,0 +1,39 @@
+import hashlib
+from typing import List
+
+class MerkleTree:
+    def __init__(self, data: List[str]):
+      self.transactions = list(data)
+      self.root = self.build_tree(self.transactions)
+
+    def hash_pair(self, left: str, right: str) -> str:
+      return hashlib.sha256((left + right).encode('utf-8')).hexdigest()
+
+    def build_tree(self, nodes: List[str]) -> str:
+      if not nodes:
+        return ""
+
+      if len(nodes) == 1:
+        return nodes[0]
+
+      # Create a copy to prevent side effects on outer lists
+      current_level = list(nodes)
+      if len(current_level) % 2 != 0:
+        current_level.append(current_level[-1])
+
+      next_level = []
+      for i in range(0, len(current_level), 2):
+        parent_hash = self.hash_pair(current_level[i], current_level[i + 1])
+        next_level.append(parent_hash)
+
+      return self.build_tree(next_level)
+
+tx_list = [
+    hashlib.sha256(b"Tx1: A->B 10").hexdigest(),
+    hashlib.sha256(b"Tx2: B->C 5").hexdigest(),
+    hashlib.sha256(b"Tx3: C->D 2").hexdigest(),
+]
+
+tree = MerkleTree(tx_list)
+print(f"Total Transactions: {len(tx_list)}")
+print(f"Calculated Merkle Root Hash: {tree.root}")
